@@ -223,32 +223,13 @@ for(b in 1:3) {
 
 
 ```
+
 ```{r}
-var(as.vector(lc_pred))
-var(as.vector(lc_pred_new))
+summary(lc_beta)
+summary(lc_beta_new)
 
-
-result1 <- as.vector(lc_pred)
-result2 <- as.vector(lc_pred_new)
-p1<-rep(0,1)
-p2<-rep(0,1)
-for (i in 1:length(result1)){
-  if ((result1[i] >= 0.5 & dat$marginal[i]>= 0.5)|(result1[i] <= 0.5 & dat$marginal[i]<= 0.5)){
-    p1[i] <- 0
-  }
-  else{
-    p1[i] <- 1
-  }
-  
-  if ((result2[i] >= 0.5 & dat$marginal[i]>= 0.5)|(result2[i] <= 0.5 & dat$marginal[i]<= 0.5)){
-    p2[i] <- 0
-  }
-  else{
-    p2[i] <- 1
-  }
-}
-mean(p1)
-mean(p2)
 ```
 
-From the result we can see that the variance of the fit model which has squared x has smaller bias and variance
+From the result we can see that the variance of the fit model which has squared x has smaller bias and larger variance
+
+
