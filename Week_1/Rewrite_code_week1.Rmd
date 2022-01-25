@@ -6,7 +6,7 @@ output:
   pdf_document: default
   github_document: default
 ---
-## Original code
+## Rewrite code with lm()
 
 ```{r}
 library('class')
@@ -22,7 +22,7 @@ plot_mix_data <- expression({
        col=ifelse(dat$y==0, 'blue', 'orange'),
        pch=20,
        xlab=expression(x[1]),
-       ylab=expression(x[2]))
+       ylab=expression(x[2])) 
   ## draw Bayes (True) classification boundary
   prob <- matrix(dat$prob, length(dat$px1), length(dat$px2))
   cont <- contourLines(dat$px1, dat$px2, prob, levels=0.5)
@@ -42,11 +42,9 @@ fit_lc <- function(y,x){
 predict_lc <- function(x, fun) {
   cbind(1, x) %*% fun$coefficients
 }
-
 ## fit model to mixture data and make predictions
 lc_beta <- fit_lc(dat$y, dat$x)
 lc_pred <- predict_lc(dat$xnew, lc_beta)
-class(lc_pred)
 ## reshape predictions as a matrix
 lc_pred <- matrix(lc_pred, length(dat$px1), length(dat$px2))
 contour(lc_pred,
@@ -84,6 +82,7 @@ contour(knn_pred,
 
 ## find the contours in 2D space such that knn_pred == 0.5
 knn_cont <- contourLines(dat$px1, dat$px2, knn_pred, levels=0.5)
+
 
 ## plot data and decision surface
 eval(plot_mix_data)
@@ -165,4 +164,92 @@ for(b in 1:3) {
 
 ```
 
+## Use squared x to fit the data
 
+```{r}
+## fit linear classifier
+fit_lc <- function(y,x){
+  
+  return(lm(y~I(x^2) + I(x)+1))
+}
+(dat$x)^2
+## make predictions from linear classifier
+predict_lc <- function(x, fun) {
+  cbind(cbind(1, x*x),x) %*% fun$coefficients
+}
+
+## fit model to mixture data and make predictions
+lc_beta_new <- fit_lc(dat$y, dat$x)
+lc_pred_new <- predict_lc(dat$xnew, lc_beta_new)
+## reshape predictions as a matrix
+lc_pred_new <- matrix(lc_pred_new, length(dat$px1), length(dat$px2))
+contour(lc_pred_new,
+      xlab=expression(x[1]),
+      ylab=expression(x[2]))
+## find the contours in 2D space such that lc_pred == 0.5
+lc_cont_new <- contourLines(dat$px1, dat$px2, lc_pred_new, levels=0.5)
+
+## plot data and decision surface
+eval(plot_mix_data)
+sapply(lc_cont_new, lines)
+```
+
+```{r}
+## do bootstrap to get a sense of variance in decision surface
+resample <- function(dat) {
+  idx <- sample(1:length(dat$y), replace = T)
+  dat$y <- dat$y[idx]
+  dat$x <- dat$x[idx,]
+  return(dat)
+}
+  
+## plot linear classifier for three bootstraps
+par(mfrow=c(1,3))
+for(b in 1:3) {
+  datb <- resample(dat)
+  ## fit model to mixture data and make predictions
+  lc_beta_new <- fit_lc(datb$y, datb$x)
+  lc_pred_new <- predict_lc(datb$xnew, lc_beta_new)
+  
+  ## reshape predictions as a matrix
+  lc_pred_new <- matrix(lc_pred_new, length(datb$px1), length(datb$px2))
+
+  ## find the contours in 2D space such that lc_pred == 0.5
+  lc_cont_new <- contourLines(datb$px1, datb$px2, lc_pred_new, levels=0.5)
+  
+  ## plot data and decision surface
+  eval(plot_mix_data)
+  sapply(lc_cont_new, lines)
+}
+
+
+```
+```{r}
+var(as.vector(lc_pred))
+var(as.vector(lc_pred_new))
+
+
+result1 <- as.vector(lc_pred)
+result2 <- as.vector(lc_pred_new)
+p1<-rep(0,1)
+p2<-rep(0,1)
+for (i in 1:length(result1)){
+  if ((result1[i] >= 0.5 & dat$marginal[i]>= 0.5)|(result1[i] <= 0.5 & dat$marginal[i]<= 0.5)){
+    p1[i] <- 0
+  }
+  else{
+    p1[i] <- 1
+  }
+  
+  if ((result2[i] >= 0.5 & dat$marginal[i]>= 0.5)|(result2[i] <= 0.5 & dat$marginal[i]<= 0.5)){
+    p2[i] <- 0
+  }
+  else{
+    p2[i] <- 1
+  }
+}
+mean(p1)
+mean(p2)
+```
+
+From the result we can see that the variance of the fit model which has squared x has smaller bias and variance
