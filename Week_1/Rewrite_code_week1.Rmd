@@ -172,7 +172,6 @@ fit_lc <- function(y,x){
   
   return(lm(y~I(x^2) + I(x)+1))
 }
-(dat$x)^2
 ## make predictions from linear classifier
 predict_lc <- function(x, fun) {
   cbind(cbind(1, x*x),x) %*% fun$coefficients
