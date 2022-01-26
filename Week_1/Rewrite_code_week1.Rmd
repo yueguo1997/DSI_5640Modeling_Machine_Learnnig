@@ -230,6 +230,6 @@ summary(lc_beta_new)
 
 ```
 
-From the result we can see that the variance of the fit model which has squared x has smaller bias and larger variance
+From the result we can see that the more flexible model has squared x has smaller bias and larger variance
 
 
