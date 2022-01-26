@@ -224,12 +224,7 @@ for(b in 1:3) {
 
 ```
 
-```{r}
-summary(lc_beta)
-summary(lc_beta_new)
 
-```
-
-From the result we can see that the more flexible model has squared x has smaller bias and larger variance
+From the result we can see that the more flexible model fits the curve of the real classification better, but from the results of bootstrap, the curvature of different training sets varies greatly, more unstable. Therefore, it has smaller bias and larger variance
 
 
