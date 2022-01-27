@@ -1,17 +1,27 @@
----
-title: "Homework 1"
-author: "Yue Guo"
-date: "January 22, 2020"
-output:
-  github_document: default
-  pdf_document: default
----
+Homework 1
+================
+Yue Guo
+January 22, 2020
+
 ## Rewrite code with lm()
 
-```{r}
+``` r
 library('class')
 library('dplyr')
+```
 
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
 ## load binary classification example data from author website 
 ## 'ElemStatLearn' package no longer available
 load(url('https://web.stanford.edu/~hastie/ElemStatLearn/datasets/ESL.mixture.rda'))
@@ -32,7 +42,9 @@ plot_mix_data <- expression({
 eval(plot_mix_data)
 ```
 
-```{r}
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+``` r
 ## fit linear classifier
 fit_lc <- function(y,x){
   return(lm(y~x+1))
@@ -52,18 +64,23 @@ contour(lc_pred,
       ylab=expression(x[2]))
 ```
 
-```{r}
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
+``` r
 ## find the contours in 2D space such that lc_pred == 0.5
 lc_cont <- contourLines(dat$px1, dat$px2, lc_pred, levels=0.5)
 
 ## plot data and decision surface
 eval(plot_mix_data)
 sapply(lc_cont, lines)
-
 ```
 
-```{r}
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+    ## [[1]]
+    ## NULL
+
+``` r
 ## fit knn classifier
 ## use 5-NN to estimate probability of class assignment
 knn_fit <- knn(train=dat$x, test=dat$xnew, cl=dat$y, k=5, prob=TRUE)
@@ -78,8 +95,9 @@ contour(knn_pred,
         levels=c(0.2, 0.5, 0.8))
 ```
 
-```{r}
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
+``` r
 ## find the contours in 2D space such that knn_pred == 0.5
 knn_cont <- contourLines(dat$px1, dat$px2, knn_pred, levels=0.5)
 
@@ -89,8 +107,24 @@ eval(plot_mix_data)
 sapply(knn_cont, lines)
 ```
 
-```{r}
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
+    ## [[1]]
+    ## NULL
+    ## 
+    ## [[2]]
+    ## NULL
+    ## 
+    ## [[3]]
+    ## NULL
+    ## 
+    ## [[4]]
+    ## NULL
+    ## 
+    ## [[5]]
+    ## NULL
+
+``` r
 ## do bootstrap to get a sense of variance in decision surface
 resample <- function(dat) {
   idx <- sample(1:length(dat$y), replace = T)
@@ -119,7 +153,9 @@ for(b in 1:3) {
 }
 ```
 
-```{r}
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
 ## plot 5-NN classifier for three bootstraps
 par(mfrow=c(1,3))
 for(b in 1:3) {
@@ -141,7 +177,9 @@ for(b in 1:3) {
 }
 ```
 
-```{r}
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
 ## plot 20-NN classifier for three bootstraps
 par(mfrow=c(1,3))
 for(b in 1:3) {
@@ -161,12 +199,13 @@ for(b in 1:3) {
   eval(plot_mix_data)
   sapply(knn_cont, lines)
 }
-
 ```
+
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ## Use squared x to fit the data
 
-```{r}
+``` r
 ## fit linear classifier
 fit_lc_new <- function(y,x){
   
@@ -185,6 +224,11 @@ lc_pred_new <- matrix(lc_pred_new, length(dat$px1), length(dat$px2))
 contour(lc_pred_new,
       xlab=expression(x[1]),
       ylab=expression(x[2]))
+```
+
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
 ## find the contours in 2D space such that lc_pred == 0.5
 lc_cont_new <- contourLines(dat$px1, dat$px2, lc_pred_new, levels=0.5)
 
@@ -193,7 +237,12 @@ eval(plot_mix_data)
 sapply(lc_cont_new, lines)
 ```
 
-```{r}
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+
+    ## [[1]]
+    ## NULL
+
+``` r
 ## do bootstrap to get a sense of variance in decision surface
 resample <- function(dat) {
   idx <- sample(1:length(dat$y), replace = T)
@@ -230,11 +279,11 @@ for(b in 1:3) {
   sapply(lc_cont, lines)
   
 }
-
-
 ```
 
+![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
-From the result we can see that the more flexible model fits the curve of the real classification better, but from the results of bootstrap, the curvature of different training sets varies greatly, more unstable. Therefore, it has smaller bias and larger variance.
-
-
+From the result we can see that the more flexible model fits the curve
+of the real classification better, but from the results of bootstrap,
+the curvature of different training sets varies greatly, more unstable.
+Therefore, it has smaller bias and larger variance.
