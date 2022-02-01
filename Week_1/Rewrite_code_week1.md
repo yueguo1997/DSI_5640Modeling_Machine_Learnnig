@@ -47,7 +47,7 @@ eval(plot_mix_data)
 ``` r
 ## fit linear classifier
 fit_lc <- function(y,x){
-  return(lm(y~x+1))
+  return(lm(y~x))
 }
 
 ## make predictions from linear classifier
@@ -209,7 +209,7 @@ for(b in 1:3) {
 ## fit linear classifier
 fit_lc_new <- function(y,x){
   
-  return(lm(y~I(x^2) + I(x)+1))
+  return(lm(y~I(x^2) + I(x)))
 }
 ## make predictions from linear classifier
 predict_lc_new <- function(x, fun) {
@@ -283,7 +283,12 @@ for(b in 1:3) {
 
 ![](Rewrite_code_week1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
-From the result we can see that the more flexible model fits the curve
-of the real classification better, but from the results of bootstrap,
-the curvature of different training sets varies greatly, more unstable.
-Therefore, it has smaller bias and larger variance.
+Bias is the error of the prediction result form the model with the true
+value. Vairiance is the mean of the square of the difference between the
+predicted value and the average predicted value of the model in
+different datasets. Bias represents the fit of the model. And the
+variance represent the how stable the model is across different
+datasets.From the result we can see that the more flexible model fits
+the curve of the real classification better, but from the results of
+bootstrap, the curvature of different training sets varies greatly, more
+unstable. Therefore, it has smaller bias and larger variance.
