@@ -7,8 +7,8 @@ Yue Guo
 ## Background
 
 ``` r
-library("qrnn")
 ## load prostate data
+library(qrnn)
 prostate <- 
   read.table(url(
     'https://web.stanford.edu/~hastie/ElemStatLearn/datasets/prostate.data'))
@@ -34,18 +34,16 @@ L2_loss <- function(y, yhat)
   (y-yhat)^2
 
 ## fit simple linear model using numerical optimization
-predict_lin <- function(x, beta){
-  beta[1] + beta[2]*x
-}
-fit_lin <- function(y, x, loss=L2_loss, beta_init = c(-0.51, 0.75), predict_fun = predict_lin) {
+fit_lin <- function(y, x, loss=L2_loss, beta_init = c(-0.51, 0.75)) {
   err <- function(beta)
-    mean(loss(y,  predict_lin(x,beta)))
+    mean(loss(y,  beta[1] + beta[2]*x))
   beta <- optim(par = beta_init, fn = err)
   return(beta)
 }
 
 ## make predictions from linear model
- 
+predict_lin <- function(x, beta)
+  beta[1] + beta[2]*x
 
 ## fit linear model
 lin_beta <- fit_lin(y=prostate_train$lcavol,
@@ -74,7 +72,7 @@ lin_pred_lm <- predict(lin_fit_lm, data.frame(lpsa=x_grid))
 lines(x=x_grid, y=lin_pred_lm, col='pink', lty=2, lwd=2)
 ```
 
-![](Untitled_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+![](HW2_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
 ``` r
 ##################################
@@ -82,11 +80,8 @@ lines(x=x_grid, y=lin_pred_lm, col='pink', lty=2, lwd=2)
 ##################################
 
 ## custom loss function
-custom_loss <- function(y, yhat){
+custom_loss <- function(y, yhat)
   (y-yhat)^2 + abs(y-yhat)
-  
-}
-  
 
 ## plot custom loss function
 err_grd <- seq(-1,1,length.out=200)
@@ -94,7 +89,7 @@ plot(err_grd, custom_loss(err_grd,0), type='l',
      xlab='y-yhat', ylab='custom loss')
 ```
 
-![](Untitled_files/figure-gfm/unnamed-chunk-1-2.png)<!-- -->
+![](HW2_files/figure-gfm/unnamed-chunk-1-2.png)<!-- -->
 
 ``` r
 ## fit linear model with custom loss
@@ -114,7 +109,7 @@ lines(x=x_grid, y=lin_pred, col='darkgreen', lwd=2)
 lines(x=x_grid, y=lin_pred_custom, col='pink', lwd=2, lty=2)
 ```
 
-![](Untitled_files/figure-gfm/unnamed-chunk-1-3.png)<!-- -->
+![](HW2_files/figure-gfm/unnamed-chunk-1-3.png)<!-- -->
 
 ## Question 1
 
@@ -141,6 +136,11 @@ fit_lin_new <- function(y, x, loss=L2_loss, beta_init = c(-0.51, 0.75), predict_
   beta <- optim(par = beta_init, fn = err)
   return(beta)
 }
+abs_beta <- fit_lin_new(y=prostate_train$lcavol,
+                    x=prostate_train$lpsa,
+                    beta_init = c(-0.51, 0.75),
+                    loss= absolute_loss_function,
+                    tau = 0.5)
 
 abs_beta_25 <- fit_lin_new(y=prostate_train$lcavol,
                     x=prostate_train$lpsa,
@@ -153,17 +153,19 @@ abs_beta_75 <- fit_lin_new(y=prostate_train$lcavol,
                     loss= absolute_loss_function,
                     tau = 0.75)
 
+abs_pred <- predict_lin(x=x_grid, beta=abs_beta$par)
 abs_pred_25 <- predict_lin(x=x_grid, beta=abs_beta_25$par)
 abs_pred_75 <- predict_lin(x=x_grid, beta=abs_beta_75$par)
 plot_psa_data()
 title = (main = "Linear prediction")
 lines(x=x_grid, y=lin_pred, col='darkgreen', lwd=2)
+lines(x=x_grid, y=abs_pred, col='red', lwd=2)
 lines(x=x_grid, y=abs_pred_25, col='pink', lwd=2)
 lines(x=x_grid, y=abs_pred_75, col='blue', lwd=2)
-legend("bottomright", legend = c("L2_loss", "L1_loss_tau=0.25", "L1_loss_tau=0.75"),col = c("darkgreen","pink","blue"), lty  = 1)
+legend("bottomright", legend = c("L2_loss", "L1_loss_tau=0.25", "L1_loss_tau=0.75","L1-loss"),col = c("darkgreen","pink","blue","red"), lty  = 1)
 ```
 
-![](Untitled_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](HW2_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ## Qustion 3
 
@@ -178,15 +180,18 @@ nonlinear_pred <- function(x,beta){
   beta[1] + beta[2]*exp(-beta[3]*x)
 }
 
-fit_nonlin <- function(y, x, loss=L2_loss, beta_init = c(-1.0, 0.0, -0.3), predict_fun = nonlinear_pred){
-    err <- function(beta)
-    mean(loss(y,  predict_lin(x,beta)))
+fit_nonlin <- function(y, x, loss=L2_loss, beta_init = c(-1.0, 0.0, -0.3)){
+    err <- function(beta){
+      mean(loss(y,  beta[1] + beta[2]*exp(-beta[3]*x)))
+    }
+    
     beta <- optim(par = beta_init, fn = err)
     return(beta)
 }
 fit_nonlin_abs <- function(y, x, loss=L2_loss, beta_init = c(-1.0, 0.0, -0.3), predict_fun = nonlinear_pred,tau){
-    err <- function(beta)
-    mean(loss(y,  predict_lin(x,beta),tau))
+    err <- function(beta){
+      mean(loss(y,  beta[1] + beta[2]*exp(-beta[3]*x),tau))
+    }
     beta <- optim(par = beta_init, fn = err)
     return(beta)
     }
@@ -200,34 +205,40 @@ model predictors associated with L2 loss, L1 loss, and tilted absolute
 value loss for tau = 0.25 and 0.75.
 
 ``` r
+L1_non_pred_beta <- fit_nonlin_abs(y=prostate_train$lcavol,
+                               x=prostate_train$lpsa, 
+                               loss=absolute_loss_function, 
+                               beta_init = c(-1.0, 0.0, -0.3),
+                               tau = 0.5)
 L1_non_pred_beta_25 <- fit_nonlin_abs(y=prostate_train$lcavol,
                                x=prostate_train$lpsa, 
                                loss=absolute_loss_function, 
                                beta_init = c(-1.0, 0.0, -0.3),
-                               predict_fun = nonlinear_pred,tau = 0.25)
+                               tau = 0.25)
 L1_non_pred_beta_75 <- fit_nonlin_abs(y=prostate_train$lcavol,
                                x=prostate_train$lpsa, 
                                loss=absolute_loss_function, 
                                beta_init = c(-1.0, 0.0, -0.3),
-                               predict_fun = nonlinear_pred,tau = 0.75)
+                               tau = 0.75)
                                            
 L2_non_pred_beta <- fit_nonlin(y=prostate_train$lcavol,
                                x=prostate_train$lpsa,
                                loss=L2_loss, 
-                               beta_init = c(-1.0, 0.0, -0.3), 
-                               predict_fun = nonlinear_pred)
+                               beta_init = c(-1.0, 0.0, -0.3))
 
+L1_non_pred <- nonlinear_pred(x=x_grid, beta=L1_non_pred_beta$par)
 L1_non_pred_25 <- nonlinear_pred(x=x_grid, beta=L1_non_pred_beta_25$par)
 L1_non_pred_75 <- nonlinear_pred(x=x_grid, beta=L1_non_pred_beta_75$par)
 L2_non_pred <- nonlinear_pred(x=x_grid, beta=L2_non_pred_beta$par)
 plot_psa_data()
 title(main = "Nonlinear prediction")
 ## plot predictions from L2 loss
+lines(x=x_grid, y=L1_non_pred, col='red', lwd=2)
 lines(x=x_grid, y=L1_non_pred_25, col='darkgreen', lwd=2)
 lines(x=x_grid, y=L1_non_pred_75, col='blue', lwd=2)
 ## plot predictions from custom loss
 lines(x=x_grid, y=L2_non_pred, col='pink', lwd=2)
-legend("bottomright", "(x,y)", legend = c("L1_Loss_tau = 0.25","L1_Loss_tau = 0.75", "L2_loss"), col = c("darkgreen","blue", "pink"),lwd = 1)
+legend("bottomright", "(x,y)", legend = c("L1_Loss_tau = 0.25","L1_Loss_tau = 0.75", "L2_loss","L1_Loss"), col = c("darkgreen","blue", "pink","red"),lwd = 1)
 ```
 
-![](Untitled_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](HW2_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
