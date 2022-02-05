@@ -1,0 +1,105 @@
+---
+title: "Week_3"
+author: Yue Guo
+output: github_document
+---
+
+```{r}
+library(corrplot)
+library(tidyverse)
+library(glmnet)
+```
+
+# Question 1
+Use the prostate cancer data.
+Use the cor function to reproduce the correlations listed in HTF Table 3.1, page 50.
+```{r}
+prostate <- 
+  read.table(url(
+    'https://web.stanford.edu/~hastie/ElemStatLearn/datasets/prostate.data'))
+cor_relation <- cor(prostate)
+cor_relation
+corrplot(cor_relation, method = c("circle"),type = c("lower"))
+```
+# Question 2
+Treat lcavol as the outcome, and use all other variables in the data set as predictors.
+With the training subset of the prostate data, train a least-squares regression model with all predictors using the lm function.
+```{r}
+train <- prostate %>%
+  filter(train ==TRUE)%>%
+  select(-train)
+
+fit_linear <- lm(lcavol ~ ., data = train)
+```
+
+# Question 3
+Use the testing subset to compute the test error (average squared-error loss) using the fitted least-squares regression model.
+```{r}
+test <- prostate %>%
+  filter(train == FALSE)%>%
+  select(-train)
+
+linear_pred <- predict(fit_linear,test)
+
+linear_test_err <- mean((linear_pred-test$lcavol)^2)
+linear_test_err 
+```
+
+# Question 4
+Train a ridge regression model using the glmnet function, and tune the value of lambda (i.e., use guess and check to find the value of lambda that approximately minimizes the test error).
+```{r}
+x_input <- model.matrix(lcavol ~ ., data = train)
+y_out <- train$lcavol
+ridge_fit <-glmnet(x_input,y_out,alpha = 0, lambda = seq(0.5,0,-0.05))
+error <- function(x,y){
+  mean((y-x)^2)
+}
+error(y_out, predict(ridge_fit, newx = x_input, s =0.3))
+error(y_out, predict(ridge_fit, newx = x_input, s =0.2))
+error(y_out, predict(ridge_fit, newx = x_input, s =0.1))
+error(y_out, predict(ridge_fit, newx = x_input, s =0))
+```
+From the result we can see that when lambda equals to around 0.1, model approximately has the smallest test error.
+# Question 5
+Create a figure that shows the training and test error associated with ridge regression as a function of lambda
+```{r}
+ridge_error_plot <- function(dataset, lambda,train_set = train){
+  error <- rep(0,1)
+  s = 1
+  x_input <- model.matrix(lcavol~., data = train)
+  y_out <- train$lcavol
+  x_in <- model.matrix(lcavol~., data = dataset)
+  for(i in lambda){
+    ridge_fit_new <- glmnet(x_input,y_out,alpha = 0, lambda = i)
+    ridge_pred <- predict(ridge_fit_new, newx = x_in, s =i)
+    error[s] <- mean((ridge_pred-dataset$lcavol)^2)
+    s = s+1
+  }
+  return(error)
+}
+
+test_error <- ridge_error_plot(test,lambda = seq(0.5,0,-0.05))
+train_error <- ridge_error_plot(train,lambda = seq(0.5,0,-0.05))
+x <- ridge_fit$lambda
+plot(x,train_error,col = "blue",type = "l")
+lines(x,test_error,type = "l",col = "red")
+```
+
+# Question 6
+Create a path diagram of the ridge regression analysis, similar to HTF Figure 3.8
+```{r}
+plot(x=range(ridge_fit$lambda),
+     y=range(as.matrix(ridge_fit$beta)),
+     type='n',
+     xlab=expression(lambda),
+     ylab='Coefficients')
+for(i in 1:nrow(ridge_fit$beta)) {
+  points(x=ridge_fit$lambda, y=ridge_fit$beta[i,], pch=19, col='blue')
+  lines(x=ridge_fit$lambda, y=ridge_fit$beta[i,], col='darkblue')
+}
+text(x=0, y=ridge_fit$beta[,ncol(ridge_fit$beta)], 
+     labels=rownames(ridge_fit$beta),
+     xpd=NA, pos=4, srt=45)
+abline(v=0.3, lty=3, lwd=2)
+abline(h=0, lty=3, lwd=2)
+```
