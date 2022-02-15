@@ -54,10 +54,13 @@ ridge_fit <-glmnet(x_input,y_out,alpha = 0, lambda = seq(0.5,0,-0.05))
 error <- function(x,y){
   mean((y-x)^2)
 }
-error(y_out, predict(ridge_fit, newx = x_input, s =0.3))
-error(y_out, predict(ridge_fit, newx = x_input, s =0.2))
-error(y_out, predict(ridge_fit, newx = x_input, s =0.1))
-error(y_out, predict(ridge_fit, newx = x_input, s =0))
+
+x <- model.matrix(lcavol ~ ., data = test)
+y_out1 <- test$lcavol
+error(y_out1, predict(ridge_fit, newx = x, s =0.3))
+error(y_out1, predict(ridge_fit, newx = x, s =0.2))
+error(y_out1, predict(ridge_fit, newx = x, s =0.15))
+error(y_out1, predict(ridge_fit, newx = x, s =0.05))
 ```
 From the result we can see that when lambda equals to around 0.1, model approximately has the smallest test error.
 # Question 5
