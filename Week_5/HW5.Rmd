@@ -3,7 +3,7 @@
 title: "Homework 5"
 author: DS Student
 date: January 15, 2020
-output: github_document
+output: pdf_document
 ---
 ## Randomly split the mcycle data into training (75%) and validation (25%) subsets.
 ```{r}
