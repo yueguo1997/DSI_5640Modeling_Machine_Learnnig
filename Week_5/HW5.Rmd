@@ -3,13 +3,14 @@
 title: "Homework 5"
 author: DS Student
 date: January 15, 2020
-output: pdf_document
+output: 
+    pdf_document
 ---
 ## Randomly split the mcycle data into training (75%) and validation (25%) subsets.
 ```{r}
+set.seed(10)
 library('MASS')
 data <- mcycle
-dim(data)[1]
 train_data_ind <- sample(dim(data)[1], dim(data)[1]*0.75) 
 train_data <- data[train_data_ind,]
 test_data <- data[-train_data_ind,]
@@ -143,5 +144,5 @@ legend("topright",c("error", "sd"), col = c("red", "black"),lty = 1 )
 
 
 ## Interpret the resulting figures and select a suitable value for the tuning parameter.
-From the plot we can see that when k = 10, the test and train plot is the smallest. When k >10 and k increases, test and train error also increase. Waht's more, AIC, BIC are similar with the train error. Therefore, suitable k value is about 10.
+From the plot we can see that when k = 8, the test and train plot is the smallest. When k >8 and k increases, test and train error also increase. Waht's more, AIC, BIC are similar with the train error. Therefore, suitable k value is about 8.
 
