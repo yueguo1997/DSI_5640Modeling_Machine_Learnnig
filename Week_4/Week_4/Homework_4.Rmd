@@ -9,16 +9,27 @@ output: github_document
 # Question 1
 
 ## a
-1/10
+1. When x <= 0.95 and x >= 0.05
+   p =10%
+2. When x < 0.05,the sample is between [0,x+0.05]
+   p = (100x + 5)%
+3. When x > 0.95,the sample is between [x - 0.05,1]
+   p = (105 - 100x)%
+
+In conclusion:
+$\int_{0.05}^{0.95}10dx + \int_{0}^{0.05}(100x + 5)dx + \int_{0.95}^{1}(105-100x)dx = 9.75$
+   
+   
+p = 9.75%
 
 ## b
-1/100
+9.75%^2 = 0.950625%
 
 ## c
-0.1^100
+9.75%^100
 
 ## d
-From the answer of a to c, we can find that when the number of the features is increasing, the number of pbservations we can use to predict is decreasing, whcih will makes the prediction result worse. When the number of features is large enough, there will be no obersvations close to the given test and aslo no predictions. 
+From the answer of a to c, we can find that when the number of the features is increasing, the number of pbservations we can use to predict is decreasing, which will makes the prediction result worse. When the number of features is large enough, there will be no obersvations close to the given test and aslo no predictions. 
 
 ## e
 p =1
