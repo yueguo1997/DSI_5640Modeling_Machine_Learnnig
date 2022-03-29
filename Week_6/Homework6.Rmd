@@ -1,6 +1,6 @@
 ---
 title: "Homework_6"
-output: html_document
+output: github_document
 ---
 
 ## Data and package prepare
