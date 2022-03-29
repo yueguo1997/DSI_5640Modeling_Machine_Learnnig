@@ -100,9 +100,9 @@ print(BIC)
 
 plot(k1,training_error,type = "l", col = "green",ylim = c(180,1300),xlab = "k",ylab = "error")
 lines(k1,AIC,col = "pink",type = "l")
-lines(k1,BIC,col = "blue",type = "l")
+lines(k1,BIC,col = "lightblue",type = "l")
 lines(k1,testing_error,col = "red",type = "l")
-legend("topright", c("training error", "AIC", "BIC", "Validation error"), col = c("green","pink","blue","red"))
+legend("topright", c("training error", "AIC", "BIC", "Validation error"), col = c("green","pink","lightblue","red"),lty = 1)
 
 ```
 

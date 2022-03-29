@@ -1,0 +1,70 @@
+---
+title: "Homework_6"
+output: html_document
+---
+
+## Data and package prepare
+```{r}
+library(randomForest)
+library(ElemStatLearn)
+library(mlbench)
+library(caret)
+#library(e1071)
+```
+
+## Step 1
+```{r}
+train <- vowel.train
+train$y <- factor(train$y)
+train
+```
+
+## Step2
+```{r}
+?randomForest
+```
+
+## Step3
+```{r}
+model1 <- randomForest(y~.,data = train)
+model1
+```
+
+
+
+##Step 3
+```{r}
+control <- trainControl(method='cv', 
+                        number=5, 
+                        search='grid')
+#create tunegrid with 15 values from 1:15 for mtry to tunning model. Our train function will change number of entry variable at each split according to tunegrid. 
+tunegrid <- expand.grid(.mtry=c(2:5))
+modellist <- list()
+seed <- 1
+for (nodesize in c(1,5,10,20,40,80)) {
+  set.seed(seed)
+  fit <- train(y ~., data = train, method="rf", metric="Accuracy", tuneGrid=tunegrid, trControl=control, nodesize=nodesize)
+  key <- toString(nodesize)
+  modellist[[key]] <- fit
+  }
+  # compare results
+results <- resamples(modellist)
+summary(results)
+results
+```
+
+```{r}
+dotplot(results)
+```
+From the plot we can see that the best mtry is 2 and nodesize is 1
+
+## Step4
+```{r}
+model2 <- randomForest(y~.,data = train, mtry = 2, nodesize = 1)
+test <- vowel.test
+test$y <- factor(test$y)
+prediction <- predict(model2,test)
+mis_rate <- mean(prediction != test$y)
+mis_rate
+```
+
