@@ -14,4 +14,4 @@
 
 [Homework_6](https://github.com/yueguo1997/DSI_5640Modeling_Machine_Learnnig/blob/main/Week_6/Homework6.md)
 
-[Homework_7](https://github.com/yueguo1997/DSI_5640Modeling_Machine_Learnnig/blob/main/Week_7/Homework_7/Homework7.md): picatures are in the folders, not in md.
+[Homework_7](https://github.com/yueguo1997/DSI_5640Modeling_Machine_Learnnig/blob/main/Week_7/Homework_7): picatures are in the folders, not in md.
