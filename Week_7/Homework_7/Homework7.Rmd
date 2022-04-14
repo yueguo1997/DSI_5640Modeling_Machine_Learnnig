@@ -2,7 +2,7 @@
 title: "Homework 7"
 author: DS Student
 date: 04, 14, 2022
-output: github_document
+output: pdf_document
 ---
 ```{r}
 library('keras')
