@@ -55,18 +55,18 @@ fit_nnet <- nnet(x = train_x, y= train_y, size=10, entropy=TRUE, decay=0.02)
 ```
 
     ## # weights:  41
-    ## initial  value 140.114500 
-    ## iter  10 value 103.315507
-    ## iter  20 value 94.124403
-    ## iter  30 value 90.998410
-    ## iter  40 value 88.448844
-    ## iter  50 value 86.965933
-    ## iter  60 value 86.816046
-    ## iter  70 value 86.785793
-    ## iter  80 value 86.773749
-    ## iter  90 value 86.742287
-    ## iter 100 value 86.646624
-    ## final  value 86.646624 
+    ## initial  value 155.015869 
+    ## iter  10 value 98.002053
+    ## iter  20 value 92.330915
+    ## iter  30 value 88.534653
+    ## iter  40 value 87.243277
+    ## iter  50 value 87.050122
+    ## iter  60 value 86.832289
+    ## iter  70 value 86.722377
+    ## iter  80 value 86.670551
+    ## iter  90 value 86.652150
+    ## iter 100 value 86.549040
+    ## final  value 86.549040 
     ## stopped after 100 iterations
 
 ### Create a figure to illustrate that the predictions are (or are not) similar using the ‘nnet’ function versus the Keras model.
@@ -94,14 +94,59 @@ for (i in 1:6831){
     classes_nnet[i]  <- 2
   }
 }
-x <- seq(1,6831,1)
-plot(x,classes_keras)
-lines(x,classes_nnet,col = "lightpink",type = "p")
 ```
 
-![](Untitled_files/figure-gfm/unnamed-chunk-6-1.png)<!-- --> From the
-plot we can see that the predictions are not similar. The points don’t
-have much overlap.
+``` r
+plot_mixture_data <- expression({
+  plot(data$x[,1], data$x[,2],
+       col=ifelse(dat$y==0, 'blue', 'orange'),
+       pch=20,
+       xlab=expression(x[1]),
+       ylab=expression(x[2]))
+  ## draw Bayes (True) classification boundary
+  prob <- matrix(dat$prob, length(dat$px1), length(dat$px2))
+  cont <- contourLines(dat$px1, dat$px2, prob, levels=0.5)
+  rslt <- sapply(cont, lines, col='purple')
+})
+
+
+plot_keras_preds <- function(fit, dat=mixture.example) {
+  
+  ## create figure
+  eval(plot_mixture_data)
+
+  ## compute predictions from nnet
+  probs <- prediction_keras[,1]
+  preds <- classes_keras
+  probm <- matrix(probs, length(data$px1), length(data$px2))
+  cls <- contourLines(data$px1, data$px2, probm, levels=0.5)
+  rslt <- sapply(cls, lines, col='black')
+}
+plot_keras_preds(model)
+```
+
+![](Homework7_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+plot_nnet_preds <- function(fit, dat=mixture.example) {
+  
+  ## create figure
+  eval(plot_mixture_data)
+
+  ## compute predictions from nnet
+  probs <- prediction_nnet
+  preds <- prediction_nnet
+  probm <- matrix(probs, length(data$px1), length(data$px2))
+  cls <- contourLines(data$px1, data$px2, probm, levels=0.5)
+  rslt <- sapply(cls, lines, col='black')
+}
+plot_nnet_preds(model1)
+```
+
+![](Homework7_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+From the plot we can see that the predictions are not similar. The
+points don’t have much overlap.
 
 ### Convert the neural network into CNN
 
@@ -166,4 +211,4 @@ history <- model1 %>%
 plot(history)
 ```
 
-![](Untitled_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Homework7_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->

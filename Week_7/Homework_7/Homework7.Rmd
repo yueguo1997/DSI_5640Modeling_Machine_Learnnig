@@ -2,7 +2,7 @@
 title: "Homework 7"
 author: DS Student
 date: 04, 14, 2022
-output: pdf_document
+output: github_document
 ---
 ```{r}
 library('keras')
@@ -68,10 +68,57 @@ for (i in 1:6831){
     classes_nnet[i]  <- 2
   }
 }
-x <- seq(1,6831,1)
-plot(x,classes_keras)
-lines(x,classes_nnet,col = "lightpink",type = "p")
+
 ```
+
+
+```{r}
+
+plot_mixture_data <- expression({
+  plot(data$x[,1], data$x[,2],
+       col=ifelse(dat$y==0, 'blue', 'orange'),
+       pch=20,
+       xlab=expression(x[1]),
+       ylab=expression(x[2]))
+  ## draw Bayes (True) classification boundary
+  prob <- matrix(dat$prob, length(dat$px1), length(dat$px2))
+  cont <- contourLines(dat$px1, dat$px2, prob, levels=0.5)
+  rslt <- sapply(cont, lines, col='purple')
+})
+
+
+plot_keras_preds <- function(fit, dat=mixture.example) {
+  
+  ## create figure
+  eval(plot_mixture_data)
+
+  ## compute predictions from nnet
+  probs <- prediction_keras[,1]
+  preds <- classes_keras
+  probm <- matrix(probs, length(data$px1), length(data$px2))
+  cls <- contourLines(data$px1, data$px2, probm, levels=0.5)
+  rslt <- sapply(cls, lines, col='black')
+}
+plot_keras_preds(model)
+
+```
+```{r}
+plot_nnet_preds <- function(fit, dat=mixture.example) {
+  
+  ## create figure
+  eval(plot_mixture_data)
+
+  ## compute predictions from nnet
+  probs <- prediction_nnet
+  preds <- prediction_nnet
+  probm <- matrix(probs, length(data$px1), length(data$px2))
+  cls <- contourLines(data$px1, data$px2, probm, levels=0.5)
+  rslt <- sapply(cls, lines, col='black')
+}
+plot_nnet_preds(model1)
+```
+
+
 From the plot we can see that the predictions are not similar. The points don't have much overlap.
 
 ###  Convert the neural network into CNN
